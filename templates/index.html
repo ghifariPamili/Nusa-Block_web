@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nusa Block | Server Discord Gamer Indonesia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Exo+2:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-blue': '#0ea5e9',
+                        'neon-purple': '#a855f7',
+                        'space-black': '#0b0b12',
+                        'deep-purple': '#2d1b69',
+                        'glow-pink': '#ec4899',
+                    },
+                    keyframes: {
+                        'pulse-glow': {
+                            '0%, 100%': { boxShadow: '0 0 0 0 rgba(14, 165, 233, 0.4)' },
+                            '50%': { boxShadow: '0 0 0 12px rgba(14, 165, 233, 0)' },
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse-glow 2s infinite',
+                        'float': 'float 4s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0b0b12 0%, #150a30 100%);
+            font-family: 'Exo 2', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .header-sticky {
+            backdrop-filter: blur(12px);
+            background: rgba(11, 11, 18, 0.7);
+            border: 1px solid rgba(120, 110, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .hero-bg {
+            background:
+                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 20%);
+        }
+
+        .card-glow {
+            transition: all 0.4s ease;
+            will-change: transform, box-shadow;
+        }
+
+        .card-glow:hover {
+            box-shadow: 0 0 25px rgba(14, 165, 233, 0.7), 0 0 50px rgba(168, 85, 247, 0.5);
+            transform: translateY(-10px) rotate(1deg);
+        }
+
+        /* Prevent animation flicker on load */
+        [data-animation] {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Animated elements — will be added by JS */
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards !important;
+        }
+
+        .animate-scale-up {
+            animation: zoomIn 0.8s ease-out forwards !important;
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.8s ease-out forwards !important;
+        }
+
+        .animate-float-delay {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 12px rgba(168, 85, 247, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.4);
+            }
+        }
+
+        .pulse-glow {
+            animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Logo Hover Glow */
+        #discord img:hover {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(14, 165, 233, 0.4);
+            transform: scale(1.05) rotate(3deg);
+            transition: all 0.3s ease;
+        }
+
+        /* === LIGHTBOX MODAL === */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .lightbox img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.5), 0 0 60px rgba(168, 85, 247, 0.3);
+            transform: scale(0.95);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .lightbox img.zoomed {
+            transform: scale(1);
+        }
+
+        .lightbox .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+            z-index: 10000;
+        }
+
+        .lightbox .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header id="main-header" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-11/12 max-w-5xl px-6 py-3">
+        <div class="flex justify-between items-center">
+            <div class="text-neon-blue font-bold text-2xl tracking-wider flex items-center">
+                <span id="typed-name"></span>
+                <span class="ml-2 w-3 h-3 bg-green-400 rounded-full animate-pulse"></span>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#about" class="text-gray-300 hover:text-neon-blue transition">About</a>
+                <a href="#gallery" class="text-gray-300 hover:text-neon-blue transition">Gallery</a>
+                <a href="#discord" class="text-gray-300 hover:text-neon-blue transition">Join Us</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero"
+        class="hero-bg min-h-screen flex flex-col justify-center items-center px-4 text-center relative overflow-hidden">
+        <!-- Floating particles -->
+        <div class="absolute inset-0 z-0">
+            <div class="absolute top-10 left-10 w-2 h-2 bg-neon-blue rounded-full animate-float-delay"></div>
+            <div class="absolute top-1/3 right-20 w-3 h-3 bg-neon-purple rounded-full animate-float-delay"
+                style="animation-delay: 0.8s"></div>
+            <div class="absolute bottom-20 left-1/4 w-2 h-2 bg-glow-pink rounded-full animate-float-delay"
+                style="animation-delay: 1.4s"></div>
+            <div class="absolute bottom-1/3 right-10 w-1 h-1 bg-neon-blue rounded-full animate-float-delay"
+                style="animation-delay: 2s"></div>
+        </div>
+
+        <div class="relative z-10 max-w-3xl">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-neon-blue via-neon-purple to-glow-pink"
+                data-animation="fade-in">
+                <span id="nusa-block-main"></span>
+            </h1>
+            <p id="tagline" class="text-xl md:text-2xl text-gray-200 mb-10 max-w-2xl mx-auto leading-relaxed"
+                data-animation="slide-up" data-delay="300">
+                <!-- filled by JS -->
+            </p>
+            <a href="#discord"
+                class="inline-block px-8 py-4 bg-gradient-to-r from-neon-blue to-neon-purple text-white font-bold rounded-full shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-neon-blue/30"
+                data-animation="scale-up" data-delay="600">
+                🚀 Join the Squad
+            </a>
+        </div>
+
+        <div class="absolute bottom-10 animate-bounce" data-animation="fade-in" data-delay="900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-neon-blue" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 px-4">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple mb-4"
+                    data-animation="fade-in">
+                    About Nusa Block
+                </h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-neon-blue to-neon-purple mx-auto rounded-full animate-fade-in"
+                    data-animation="scale-up" data-delay="200"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div data-animation="slide-up" data-delay="0">
+                    <img src="https://placehold.co/500x400/1e293b/60a5fa?text=Nusa+Block+Community"
+                        alt="Nusa Block Community" class="rounded-2xl shadow-2xl border border-neon-blue/20 w-full">
+                </div>
+                <div data-animation="slide-up" data-delay="300" class="space-y-6">
+                    <p class="text-gray-300 text-lg leading-relaxed">
+                        Nusa Block adalah komunitas gamer Indonesia yang bersatu dalam satu server Discord — tempat di
+                        mana skill, teamwork, dan tawa berkumpul dalam satu frekuensi.
+                    </p>
+                    <p class="text-gray-300 text-lg leading-relaxed">
+                        Dari Valorant hingga Minecraft, dari MLBB sampai Genshin — kami tidak terpaku pada satu game.
+                        Karena di sini, yang penting: <span class="text-neon-blue font-bold">vibes-nya pas, tim-nya
+                            solid, dan mic-nya on!</span>
+                    </p>
+                    <ul class="space-y-3 mt-6">
+                        <li class="flex items-center" data-animation="fade-in" data-delay="500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neon-blue mr-2 flex-shrink-0"
+                                viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-200">Tournament mingguan & event seru</span>
+                        </li>
+                        <li class="flex items-center" data-animation="fade-in" data-delay="600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neon-blue mr-2 flex-shrink-0"
+                                viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-200">Voice chat 24/7 — no toxic, only copium</span>
+                        </li>
+                        <li class="flex items-center" data-animation="fade-in" data-delay="700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neon-blue mr-2 flex-shrink-0"
+                                viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-gray-200">Channel khusus: build showcase, meme war, & chill zone</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Spotify Section -->
+    <section id="spotify" class="py-16 px-4 bg-gradient-to-r from-deep-purple to-space-black">
+        <div class="max-w-4xl mx-auto text-center">
+            <h3
+                class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-blue to-neon-purple mb-6">
+                🎧 Vibes Nusa Block Radio
+            </h3>
+            <p class="text-gray-300 mb-8">
+                Playlist resmi server — dari chill lofi sampai hype gaming anthem!
+            </p>
+
+            <!-- Spotify Embed (Replace with your playlist URI) -->
+            <div
+                class="aspect-w-16 aspect-h-9 max-w-3xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-neon-blue/20">
+                <iframe data-testid="embed-iframe" style="border-radius:12px"
+                    src="https://open.spotify.com/embed/playlist/1JeWTqXK2bm8sLFrflP5mn?utm_source=generator"
+                    width="100%" height="352" frameBorder="0" allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"></iframe>
+            </div>
+
+            <p class="mt-6 text-gray-500 text-sm">
+                🔁 Update tiap minggu oleh tim Nusa Block. Request lagu via <code>#music-request</code> di Discord!
+            </p>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="py-20 px-4 bg-gradient-to-b from-space-black to-deep-purple">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-glow-pink mb-4"
+                    data-animation="fade-in">
+                    Moments of Glory
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto" data-animation="slide-up" data-delay="200">
+                    Capture terbaik dari event, tournament, dan chaos malam minggu di Nusa Block.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for item in gallery %}
+                <div class="card-glow bg-space-black rounded-2xl overflow-hidden border border-neon-blue/10 shadow-xl transform transition-all duration-500 hover:-rotate-2 cursor-pointer"
+                    data-animation="scale-up" data-delay="{{ loop.index0 * 100 }}">
+                    <div class="relative overflow-hidden">
+                        <!-- 🔥 GANTI INI: Tambahkan onclick -->
+                        <img src="{{ item.img }}" alt="{{ item.title }}"
+                            class="w-full h-56 object-cover transition-transform duration-700 hover:scale-110 cursor-pointer"
+                            loading="lazy">
+                        <div class="absolute inset-0 bg-gradient-to-t from-space-black to-transparent opacity-80"></div>
+                        <div class="absolute bottom-4 left-4 text-white font-bold">{{ item.title }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-12">
+                <p class="text-gray-500 text-sm" data-animation="fade-in" data-delay="500">
+                    ✨ <em>Admin bisa tambah foto/event baru kapan saja — langsung muncul di sini!</em>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer / Discord CTA -->
+    <section id="discord" class="py-16 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <!-- 💥 GANTI LOGO DISCORD DENGAN LOGO NUSA BLOCK'S -->
+            <div class="mb-8" data-animation="fade-in">
+                <img src="{{ url_for('static', filename='images/logo-nusablocks.png') }}" alt="Nusa Block's Logo"
+                    class="w-32 h-32 mx-auto rounded-full shadow-lg border-2 border-neon-purple/30 animate-float-delay"
+                    style="object-fit: contain; background: rgba(255,255,255,0.05);">
+            </div>
+
+            <h3 class="text-3xl font-bold text-white mb-4" data-animation="fade-in" data-delay="200">Ready to Level Up?
+            </h3>
+            <p class="text-gray-300 max-w-2xl mx-auto mb-8 text-lg" data-animation="slide-up" data-delay="400">
+                Gabung sekarang dan rasakan vibes gamer Indonesia yang sesungguhnya: solid, seru, dan tanpa toxic!
+            </p>
+
+            <!-- ✅ TOMBOL JOIN — SUDAH DIPERBAIKI SEBELUMNYA -->
+            <a href="https://discord.gg/nusablock" target="_blank"
+                class="inline-block px-8 py-4 bg-gradient-to-r from-neon-purple to-glow-pink text-white font-bold rounded-full shadow-xl transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-neon-purple/30 border-2 border-transparent z-20 relative"
+                style="opacity: 1 !important; display: inline-block !important;" id="discord-btn">
+                🎮 Join Nusa Block on Discord
+            </a>
+
+            <p class="mt-6 text-gray-500 text-sm" data-animation="fade-in" data-delay="800">
+                Server invite: <code class="bg-gray-800 px-2 py-1 rounded">discord.gg/nusablock</code>
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer Bottom -->
+    <footer class="py-8 text-center text-gray-600 border-t border-gray-800">
+        <p>&copy; 2025 Nusa Block. Made with ❤️ for Indonesian Gamers.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+    <script>
+        // ========== DOMContentLoaded — All JS that needs DOM ==========
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // ========== 1. Header Sticky on Scroll ==========
+            const header = document.getElementById('main-header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('header-sticky', 'top-4');
+                    header.style.top = '1rem';
+                    header.style.borderRadius = '1rem';
+                } else {
+                    header.classList.remove('header-sticky');
+                    header.style.borderRadius = '0';
+                }
+            });
+
+            // ========== 2. Typed.js Animations ==========
+            let typedMain, typedHeader;
+
+            function initTyped() {
+                if (typedMain) typedMain.destroy();
+                if (typedHeader) typedHeader.destroy();
+
+                typedMain = new Typed('#nusa-block-main', {
+                    strings: ['Nusa Block'],
+                    typeSpeed: 100,
+                    backSpeed: 30,
+                    loop: false,
+                    showCursor: false,
+                    onComplete: () => {
+                        const heroEls = document.querySelectorAll('#hero [data-animation]');
+                        setTimeout(() => {
+                            heroEls.forEach(el => {
+                                const delay = parseInt(el.dataset.delay) || 0;
+                                setTimeout(() => animateElement(el), delay);
+                            });
+                        }, 100);
+                    }
+                });
+
+                typedHeader = new Typed('#typed-name', {
+                    strings: ['Nusa Block'],
+                    typeSpeed: 80,
+                    backSpeed: 20,
+                    loop: false,
+                    showCursor: false,
+                });
+            }
+
+            // ========== 3. Dynamic Tagline ==========
+            const taglines = [
+                "Where Indonesian gamers unite — mic on, vibes strong, no rage quits.",
+                "From noobs to pros, from solo to squad — all welcome in Nusa Block!",
+                "More than a server: it's a second home for gamers who love banter & wins.",
+                "Game. Laugh. Squad up. Repeat. That’s the Nusa Block loop.",
+                "Toxic-free zone ✅ | Skill-flex zone ❌ | Meme & copium zone ✅✅✅"
+            ];
+            const taglineEl = document.getElementById('tagline');
+            if (taglineEl) {
+                taglineEl.textContent = taglines[Math.floor(Math.random() * taglines.length)];
+            }
+
+            // ========== 4. Helper Function for Animation ==========
+            function animateElement(el) {
+                const animation = el.dataset.animation;
+                const delay = parseInt(el.dataset.delay) || 0;
+
+                el.classList.remove('animate-fade-in', 'animate-scale-up', 'animate-slide-up');
+
+                void el.offsetWidth;
+
+                setTimeout(() => {
+                    if (animation === 'fade-in') {
+                        el.classList.add('animate-fade-in');
+                    } else if (animation === 'scale-up') {
+                        el.classList.add('animate-scale-up');
+                    } else if (animation === 'slide-up') {
+                        el.classList.add('animate-slide-up');
+                    } else if (animation === 'pulse-glow') {
+                        el.classList.add('pulse-glow');
+                    }
+                }, delay);
+            }
+
+            // ========== 5. Intersection Observer ==========
+            const animateOnView = (entries, observer) => {
+                entries.forEach(entry => {
+                    const el = entry.target;
+                    if (entry.isIntersecting) {
+                        animateElement(el);
+                    } else {
+                        el.classList.remove('animate-fade-in', 'animate-scale-up', 'animate-slide-up');
+                    }
+                });
+            };
+
+            const observer = new IntersectionObserver(animateOnView, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('[data-animation]').forEach(el => observer.observe(el));
+            document.querySelectorAll('#gallery [data-animation]').forEach((el, i) => {
+                el.dataset.delay = (i * 120).toString();
+                observer.observe(el);
+            });
+
+            // ========== 6. Initialize Typed ==========
+            initTyped();
+
+            // ========== 7. LIGHTBOX FUNCTIONALITY ==========
+            let currentLightboxImg = null;
+
+            function openLightbox(src) {
+                const lightbox = document.getElementById('lightbox');
+                const img = document.getElementById('lightbox-img');
+
+                if (!lightbox || !img) {
+                    console.error("❌ Lightbox elements not found!");
+                    return;
+                }
+
+                img.src = src;
+                img.classList.remove('zoomed');
+                lightbox.classList.add('active');
+                currentLightboxImg = img;
+
+                setTimeout(() => {
+                    img.classList.add('zoomed');
+                }, 50);
+
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeLightbox() {
+                const lightbox = document.getElementById('lightbox');
+                const img = document.getElementById('lightbox-img');
+
+                if (lightbox && lightbox.classList.contains('active')) {
+                    img.classList.remove('zoomed');
+                    lightbox.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                    currentLightboxImg = null;
+                }
+            }
+
+            // Close on click outside
+            const lightbox = document.getElementById('lightbox');
+            if (lightbox) {
+                lightbox.addEventListener('click', function (e) {
+                    if (e.target === this) {
+                        closeLightbox();
+                    }
+                });
+            }
+
+            // Close on ESC
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    closeLightbox();
+                }
+            });
+
+            // Close on scroll
+            let lastScrollY = window.scrollY;
+            window.addEventListener('scroll', function () {
+                if (currentLightboxImg && Math.abs(window.scrollY - lastScrollY) > 5) {
+                    closeLightbox();
+                }
+                lastScrollY = window.scrollY;
+            });
+
+            // Attach gallery click events
+            document.querySelectorAll('#gallery .card-glow img').forEach(img => {
+                img.addEventListener('click', function () {
+                    openLightbox(this.src);
+                });
+            });
+
+        });
+
+        // ========== Global Functions (for onclick in HTML) ==========
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const img = document.getElementById('lightbox-img');
+
+            if (lightbox && lightbox.classList.contains('active')) {
+                img.classList.remove('zoomed');
+                lightbox.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+    </script>
+    <!-- LIGHTBOX MODAL -->
+    <div id="lightbox" class="lightbox">
+        <div class="close-btn" onclick="closeLightbox()">×</div>
+        <img id="lightbox-img" src="" alt="Enlarged Image">
+    </div>
+</body>
+
+</html>
