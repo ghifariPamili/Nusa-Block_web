@@ -25,4 +25,7 @@ def index():
     return render_template('index.html', gallery=gallery_items)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # 🔑 Wajib untuk Render: baca PORT dari environment variable
+    port = int(os.environ.get("PORT", 5000))
+    # ❌ Jangan pakai debug=True di production!
+    app.run(host="0.0.0.0", port=port)
