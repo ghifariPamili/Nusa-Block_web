@@ -6,15 +6,21 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     # Path ke folder galeri
-    GALLERY_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images', 'gallery')
+    GALLERY_FOLDER = os.path.join(app.root_path, 'static', 'images', 'gallery')
     
-    # Ambil semua gambar
-    gallery_files = [f for f in os.listdir(GALLERY_FOLDER) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+    # Cek apakah folder galeri ada — hindari error 500 saat deploy
+    if not os.path.exists(GALLERY_FOLDER):
+        gallery_files = []
+    else:
+        gallery_files = [
+            f for f in os.listdir(GALLERY_FOLDER)
+            if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))
+        ]
     
     # Buat data galeri
     gallery_items = []
-    for i, filename in enumerate(gallery_files, 1):
-        # Jika nama file: "valorant_tournament.jpg" → jadi "Valorant Tournament"
+    for filename in gallery_files:
+        # "valorant_tournament.jpg" → "Valorant Tournament"
         title = filename.split('.')[0].replace('_', ' ').title()
         img_url = url_for('static', filename=f'images/gallery/{filename}')
         gallery_items.append({
@@ -24,8 +30,8 @@ def index():
 
     return render_template('index.html', gallery=gallery_items)
 
+
+# ✅ JALANKAN HANYA SAAT DI LOKAL (tidak akan jalan di cloud)
 if __name__ == '__main__':
-    # 🔑 Wajib untuk Render: baca PORT dari environment variable
-    port = int(os.environ.get("PORT", 5000))
-    # ❌ Jangan pakai debug=True di production!
-    app.run(host="0.0.0.0", port=port)
+    # Di lokal: boleh pakai debug & port tetap
+    app.run(debug=True, host='127.0.0.1', port=5000)
